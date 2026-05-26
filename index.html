@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen Aleatorio: Concurso Nacional Crea y Emprende</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #0d6e63;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .question-title {
+            font-size: 1.15em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #0d6e63;
+        }
+        .option-label {
+            display: block;
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .option-label:hover {
+            background: #e0f2f1;
+            border-color: #118a7e;
+        }
+        .option-label input {
+            margin-right: 10px;
+        }
+        .btn-submit {
+            display: block;
+            width: 100%;
+            background-color: #0d6e63;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover {
+            background-color: #0a544c;
+        }
+        .result-box {
+            display: none;
+            background: #e0f2f1;
+            border: 2px solid #0d6e63;
+            color: #0d6e63;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.95em;
+            display: none;
+        }
+        .correct-bg {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .incorrect-bg {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Examen de Evaluación Dinámico</h1>
+        <p>Estrategia Pedagógica Nacional "Crea y Emprende" (Preguntas y Opciones Aleatorias)</p>
+    </div>
+
+    <div class="container">
+        <div id="result" class="result-box"></div>
+        <form id="quizForm">
+            <div id="quiz-container"></div>
+            <button type="button" class="btn-submit" onclick="evaluateQuiz()">Enviar y Calificar Examen</button>
+        </form>
+    </div>
+
+    <script>
+        // Banco de preguntas original con sus respectivas respuestas correctas fijas
+        const originalQuestions = [
+            {
+                id: 1,
+                question: "¿Qué es el concurso \"Crea y Emprende\"?",
+                options: [
+                    { text: "Una competencia deportiva interescolar de velocidad.", isCorrect: false },
+                    { text: "Una estrategia pedagógica que promueve la creatividad, innovación y gestión de proyectos para solucionar problemas reales.", isCorrect: true },
+                    { text: "Un programa financiero de préstamos bancarios para familias de estudiantes.", isCorrect: false },
+                    { text: "Un curso obligatorio dictado exclusivamente por empresarios externos.", isCorrect: false }
+                ],
+                explanation: "Crea y Emprende busca desarrollar soluciones reales mediante la gestión de proyectos cooperativos e innovadores."
+            },
+            {
+                id: 2,
+                question: "Un proyecto de emprendimiento escolar tiene como objetivo principal:",
+                options: [
+                    { text: "Diseñar un bien o servicio que atienda una necesidad o dé solución a un problema de un grupo de personas.", isCorrect: true },
+                    { text: "Generar ganancias económicas inmediatas para la dirección de la escuela.", isCorrect: false },
+                    { text: "Memorizar conceptos teóricos sobre la administración de grandes industrias internacionales.", isCorrect: false },
+                    { text: "Reemplazar las horas de clase habituales por jornadas completas de manufactura textil.", isCorrect: false }
+                ],
+                explanation: "El corazón del proyecto es diseñar un bien o servicio enfocado en resolver necesidades o carencias específicas de personas reales."
+            },
+            {
+                id: 3,
+                question: "¿En qué etapa del proyecto se utiliza la metodología Design Thinking para idear el producto?",
+                options: [
+                    { text: "Preparación", isCorrect: false },
+                    { text: "Planificación", isCorrect: false },
+                    { text: "Creación", isCorrect: true },
+                    { text: "Evaluación", isCorrect: false }
+                ],
+                explanation: "Durante la etapa de Creación se aplica el proceso creativo del Design Thinking para estructurar la idea."
+            },
+            {
+                id: 4,
+                question: "¿Cuál de las siguientes alternativas describe el orden correcto de las primeras 4 etapas del proyecto de emprendimiento?",
+                options: [
+                    { text: "Creación → Planificación → Ejecución → Evaluación", isCorrect: false },
+                    { text: "Preparación → Creación → Planificación → Ejecución", isCorrect: true },
+                    { text: "Planificación → Ejecución → Evaluación → Comercialización", isCorrect: false },
+                    { text: "Preparación → Planificación → Creación → Ejecución", isCorrect: false }
+                ],
+                explanation: "El flujo inicia en la Preparación del equipo, pasa por la Creación del concepto, Planificación técnica y posterior Ejecución en campo."
+            },
+            {
+                id: 5,
+                question: "Si un estudiante tiene la capacidad de adaptarse y recuperarse rápidamente frente a las dificultades y la adversidad, mantiene una actitud positiva y busca superar desafíos, ¿qué habilidad blanda está demostrando?",
+                options: [
+                    { text: "Iniciativa", isCorrect: false },
+                    { text: "Cooperación", isCorrect: false },
+                    { text: "Resiliencia", isCorrect: true },
+                    { text: "Autoconfianza", isCorrect: false }
+                ],
+                explanation: "La resiliencia define la capacidad de superación adaptativa y recuperación psicológica ante obstáculos o frustraciones."
+            },
+            {
+                id: 6,
+                question: "Dentro del equipo emprendedor, el rol del \"Investigador\" consiste principalmente en:",
+                options: [
+                    { text: "Guiar todo el proceso y asegurar el cumplimiento estricto de los horarios.", isCorrect: false },
+                    { text: "Transformar las ideas abstractas en un prototipo o dibujo técnico visual.", isCorrect: false },
+                    { text: "Recopilar opiniones (feedback) finales para ajustar el balance económico.", isCorrect: false },
+                    { text: "Analizar a los usuarios y recolectar información clave sobre su entorno.", isCorrect: true }
+                ],
+                explanation: "El investigador tiene por tarea principal entender al usuario final recopilando datos del entorno."
+            },
+            {
+                id: 7,
+                question: "Según la teoría revisada, ¿cuál es la diferencia clave entre una \"Necesidad\" y un \"Problema\"?",
+                options: [
+                    { text: "La necesidad expresa lo que hace falta para el bienestar; el problema expresa la situación negativa o dificultad visible que impide cubrirla.", isCorrect: true },
+                    { text: "El problema es siempre de origen ambiental y la necesidad es siempre de origen estrictamente económico.", isCorrect: false },
+                    { text: "La necesidad es opcional y solo la tienen algunas personas, mientras que los problemas los tienen todos por igual.", isCorrect: false },
+                    { text: "No existe ninguna diferencia, ambos términos significan exactamente lo mismo en el ámbito del emprendimiento.", isCorrect: false }
+                ],
+                explanation: "La necesidad define la aspiración o carencia de bienestar general, mientras que el problema es la traba o realidad negativa visible."
+            },
+            {
+                id: 8,
+                question: "¿Cuál es la \"fórmula sencilla\" o punto de partida que genera una Oportunidad de Emprendimiento?",
+                options: [
+                    { text: "Inversión Económica + Publicidad masiva", isCorrect: false },
+                    { text: "Necesidad + Problema Identificado", isCorrect: true },
+                    { text: "Trabajo individual + Idea al azar", isCorrect: false },
+                    { text: "Computadora + Máquina de coser", isCorrect: false }
+                ],
+                explanation: "La intersección de una necesidad con un problema real es el origen de toda oportunidad legítima de negocio con impacto positivo."
+            },
+            {
+                id: 9,
+                question: "En el caso planteado sobre la comunidad de \"Nuevo Horizonte\", ¿cuál se identificó como el problema específico?",
+                options: [
+                    { text: "La falta de agua potable durante las mañanas.", isCorrect: false },
+                    { text: "Calles oscuras y falta de iluminación eléctrica.", isCorrect: false },
+                    { text: "Acumulación de residuos en algunas zonas y poca cultura de reciclaje.", isCorrect: true },
+                    { text: "Escasez de productos alimenticios económicos en los comercios locales.", isCorrect: false }
+                ],
+                explanation: "El caso práctico de Nuevo Horizonte destaca explícitamente la acumulación de residuos y la falta de reciclaje."
+            },
+            {
+                id: 10,
+                question: "¿Cuál es el orden de acciones que propone el lema final de la infografía para transformar el entorno?",
+                options: [
+                    { text: "Actúa • Vende • Gana • Invierte", isCorrect: false },
+                    { text: "Planifica • Diseña • Confecciona • Evalúa", isCorrect: false },
+                    { text: "Escucha • Habla • Resuelve • Termina", isCorrect: false },
+                    { text: "Observa • Escucha • Analiza • Actúa • Transforma", isCorrect: true }
+                ],
+                explanation: "El lema de cierre del recurso pedagógico es de forma exacta: OBSERVA • ESCUCHA • ANALIZA • ACTÚA • TRANSFORMA."
+            }
+        ];
+
+        // Función matemática para desordenar un arreglo de manera aleatoria
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Clonamos el banco original para no destruirlo y procedemos a desordenar preguntas y alternativas
+        let randomizedQuestions = JSON.parse(JSON.stringify(originalQuestions));
+        shuffle(randomizedQuestions); // Desordena el orden de las preguntas
+
+        randomizedQuestions.forEach(q => {
+            shuffle(q.options); // Desordena de forma interna las 4 opciones de cada pregunta
+        });
+
+        // Imprimir las preguntas de forma dinámica en la web
+        const container = document.getElementById('quiz-container');
+        const letterMapping = ['A', 'B', 'C', 'D'];
+
+        randomizedQuestions.forEach((q, index) => {
+            let questionHTML = `
+                <div class="card" id="q${q.id}_container" data-correct-index="">
+                    <div class="question-title">${index + 1}. ${q.question}</div>
+            `;
+            
+            q.options.forEach((option, optIndex) => {
+                const currentLetter = letterMapping[optIndex]; // Mantiene de forma fija 'A', 'B', 'C', 'D' en la vista
+                questionHTML += `
+                    <label class="option-label">
+                        <input type="radio" name="q${q.id}" value="${option.isCorrect ? 'CORRECT' : 'INCORRECT'}">
+                        <strong>${currentLetter})</strong> ${option.text}
+                    </label>
+                `;
+            });
+
+            questionHTML += `
+                    <div class="feedback" id="f${q.id}"></div>
+                </div>
+            `;
+            container.innerHTML += questionHTML;
+        });
+
+        // Función encargada de calificar
+        function evaluateQuiz() {
+            let score = 0;
+            const total = originalQuestions.length;
+            const form = document.getElementById('quizForm');
+
+            originalQuestions.forEach(q => {
+                const radios = form.elements['q' + q.id];
+                const feedbackDiv = document.getElementById('f' + q.id);
+                feedbackDiv.style.display = "block";
+                
+                let selectedValue = "";
+                if(radios) {
+                    selectedValue = radios.value; // Devuelve 'CORRECT' o 'INCORRECT' según lo marcado
+                }
+
+                if (selectedValue === 'CORRECT') {
+                    score++;
+                    feedbackDiv.innerText = "¡Correcto! " + q.explanation;
+                    feedbackDiv.className = "feedback correct-bg";
+                } else {
+                    // Buscar cuál texto era el correcto originalmente para mostrárselo al alumno
+                    const correctText = q.options.find(o => o.isCorrect).text;
+                    feedbackDiv.innerText = "Incorrecto. La respuesta correcta es: " + correctText;
+                    feedbackDiv.className = "feedback incorrect-bg";
+                }
+            });
+
+            const resultBox = document.getElementById('result');
+            resultBox.style.display = "block";
+            resultBox.innerText = "Tu Calificación Final: " + score + " de " + total + " correctas (" + (score / total * 100) + "%)";
+            
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    </script>
+</body>
+</html>
